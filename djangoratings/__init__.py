@@ -1,5 +1,6 @@
 import os.path
 import warnings
+import collections
 
 __version__ = (0, 3, 7)
 
@@ -30,13 +31,13 @@ __build__ = get_revision()
 def lazy_object(location):
     def inner(*args, **kwargs):
         parts = location.rsplit('.', 1)
-        warnings.warn('`djangoratings.%s` is deprecated. Please use `%s` instead.' % (parts[1], location), DeprecationWarning)
+        warnings.warn('`djangoratings.{}` is deprecated. Please use `{}` instead.'.format(parts[1], location), DeprecationWarning)
         try:
             imp = __import__(parts[0], globals(), locals(), [parts[1]], -1)
         except:
             imp = __import__(parts[0], globals(), locals(), [parts[1]])
         func = getattr(imp, parts[1])
-        if callable(func):
+        if isinstance(func, collections.Callable):
             return func(*args, **kwargs)
         return func
     return inner

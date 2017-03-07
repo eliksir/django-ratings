@@ -10,7 +10,7 @@ try:
 except ImportError:
     now = datetime.now
 
-from managers import VoteManager, SimilarUserManager
+from .managers import VoteManager, SimilarUserManager
 
 class Vote(models.Model):
     content_type    = models.ForeignKey(ContentType, related_name="votes")
@@ -30,8 +30,8 @@ class Vote(models.Model):
     class Meta:
         unique_together = (('content_type', 'object_id', 'key', 'user', 'ip_address', 'cookie'))
 
-    def __unicode__(self):
-        return u"%s voted %s on %s" % (self.user_display, self.score, self.content_object)
+    def __str__(self):
+        return "{} voted {} on {}".format(self.user_display, self.score, self.content_object)
 
     def save(self, *args, **kwargs):
         self.date_changed = now()
@@ -39,7 +39,7 @@ class Vote(models.Model):
 
     def user_display(self):
         if self.user:
-            return "%s (%s)" % (self.user.username, self.ip_address)
+            return "{} ({})".format(self.user.username, self.ip_address)
         return self.ip_address
     user_display = property(user_display)
 
@@ -55,14 +55,14 @@ class Score(models.Model):
     key             = models.CharField(max_length=32)
     score           = models.IntegerField()
     votes           = models.PositiveIntegerField()
-    
+
     content_object  = generic.GenericForeignKey()
 
     class Meta:
         unique_together = (('content_type', 'object_id', 'key'),)
 
-    def __unicode__(self):
-        return u"%s scored %s with %s votes" % (self.content_object, self.score, self.votes)
+    def __str__(self):
+        return "{} scored {} with {} votes".format(self.content_object, self.score, self.votes)
 
 class SimilarUser(models.Model):
     from_user       = models.ForeignKey(User, related_name="similar_users")
@@ -70,24 +70,24 @@ class SimilarUser(models.Model):
     agrees          = models.PositiveIntegerField(default=0)
     disagrees       = models.PositiveIntegerField(default=0)
     exclude         = models.BooleanField(default=False)
-    
+
     objects         = SimilarUserManager()
-    
+
     class Meta:
         unique_together = (('from_user', 'to_user'),)
 
-    def __unicode__(self):
-        print u"%s %s similar to %s" % (self.from_user, self.exclude and 'is not' or 'is', self.to_user)
+    def __str__(self):
+        print("{} {} similar to {}".format(self.from_user, self.exclude and 'is not' or 'is', self.to_user))
 
 class IgnoredObject(models.Model):
     user            = models.ForeignKey(User)
     content_type    = models.ForeignKey(ContentType)
     object_id       = models.PositiveIntegerField()
-    
+
     content_object  = generic.GenericForeignKey()
-    
+
     class Meta:
         unique_together = (('content_type', 'object_id'),)
-    
-    def __unicode__(self):
+
+    def __str__(self):
         return self.content_object
