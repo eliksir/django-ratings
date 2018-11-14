@@ -1,9 +1,9 @@
 from datetime import datetime
 
+from django.conf import settings
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
 
 try:
     from django.utils.timezone import now
@@ -17,7 +17,7 @@ class Vote(models.Model):
     object_id       = models.PositiveIntegerField()
     key             = models.CharField(max_length=32)
     score           = models.IntegerField()
-    user            = models.ForeignKey(User, blank=True, null=True, related_name="votes")
+    user            = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, related_name="votes")
     ip_address      = models.GenericIPAddressField()
     cookie          = models.CharField(max_length=32, blank=True, null=True)
     date_added      = models.DateTimeField(default=now, editable=False)
@@ -65,8 +65,8 @@ class Score(models.Model):
         return "{} scored {} with {} votes".format(self.content_object, self.score, self.votes)
 
 class SimilarUser(models.Model):
-    from_user       = models.ForeignKey(User, related_name="similar_users")
-    to_user         = models.ForeignKey(User, related_name="similar_users_from")
+    from_user       = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="similar_users")
+    to_user         = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="similar_users_from")
     agrees          = models.PositiveIntegerField(default=0)
     disagrees       = models.PositiveIntegerField(default=0)
     exclude         = models.BooleanField(default=False)
@@ -80,7 +80,7 @@ class SimilarUser(models.Model):
         print("{} {} similar to {}".format(self.from_user, self.exclude and 'is not' or 'is', self.to_user))
 
 class IgnoredObject(models.Model):
-    user            = models.ForeignKey(User)
+    user            = models.ForeignKey(settings.AUTH_USER_MODEL)
     content_type    = models.ForeignKey(ContentType)
     object_id       = models.PositiveIntegerField()
 
