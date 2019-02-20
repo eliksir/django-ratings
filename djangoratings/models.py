@@ -39,7 +39,7 @@ class Vote(models.Model):
 
     def user_display(self):
         if self.user:
-            return "{} ({})".format(self.user.username, self.ip_address)
+            return "{} ({})".format(self.user.id, self.ip_address)
         return self.ip_address
     user_display = property(user_display)
 
